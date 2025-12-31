@@ -80,7 +80,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'postgres',      # 기본 설치 시 생성되는 DB 이름
         'USER': 'postgres',      # 기본 사용자 이름
-        'PASSWORD': '', # [중요] 아까 설치할 때 입력한 비밀번호!
+        'PASSWORD': ' ', # [중요] 아까 설치할 때 입력한 비밀번호!
         'HOST': 'localhost',
         'PORT': '5432',
     }
