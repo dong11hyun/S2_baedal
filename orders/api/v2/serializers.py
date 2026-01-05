@@ -14,8 +14,14 @@ class OrderPaymentSerializer(serializers.Serializer):
     payment_method = serializers.CharField(max_length=50)
     amount = serializers.IntegerField()
 
+class OrderRejectionSerializer(serializers.Serializer):
+    reason = serializers.CharField(max_length=200, required=True)
+
 # Empty serializers for actions that don't need input body, strictly for documentation purposes
 class OrderAcceptanceSerializer(serializers.Serializer):
+    pass
+
+class OrderPreparationCompleteSerializer(serializers.Serializer):
     pass
 
 class OrderPickupSerializer(serializers.Serializer):

@@ -6,6 +6,7 @@ class Order(models.Model):
         PENDING_PAYMENT = 'pending_payment', '결제 대기'
         PENDING_ACCEPTANCE = 'pending_acceptance', '주문 접수 대기'
         PREPARING = 'preparing', '조리중'
+        READY_FOR_PICKUP = 'ready_for_pickup', '픽업 대기'
         CANCELLED = 'cancelled', '주문 취소' # 고객 취소
         REJECTED = 'rejected', '주문 거절' # 사장님 거절
         IN_TRANSIT = 'in_transit', '배달중'

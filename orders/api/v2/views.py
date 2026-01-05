@@ -8,7 +8,9 @@ from orders.api.v2.serializers import (
     OrderPaymentSerializer,
     OrderAcceptanceSerializer,
     OrderPickupSerializer,
-    OrderDeliverySerializer
+    OrderDeliverySerializer,
+    OrderRejectionSerializer,
+    OrderPreparationCompleteSerializer
 )
 import time
 
@@ -87,33 +89,60 @@ class OrderV2ViewSet(viewsets.ReadOnlyModelViewSet):
         
         return Response(OrderV2Serializer(order).data)
 
+    @action(detail=True, methods=['post'], url_path='rejection')
+    def rejection(self, request, pk=None):
+        """
+        POST /api/v2/orders/{id}/rejection
+        """
+        order = self.get_object()
+        
+        if order.status != Order.Status.PENDING_ACCEPTANCE:
+             return Response(
+                {"error": "Order is not waiting for acceptance", "current_status": order.status},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        serializer = OrderRejectionSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        order.status = Order.Status.REJECTED
+        order.save()
+        
+        return Response(OrderV2Serializer(order).data)
+
+    @action(detail=True, methods=['post'], url_path='preparation-complete')
+    def preparation_complete(self, request, pk=None):
+        """
+        POST /api/v2/orders/{id}/preparation-complete
+        """
+        order = self.get_object()
+        
+        if order.status != Order.Status.PREPARING:
+             return Response(
+                {"error": "Order is not preparing", "current_status": order.status},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        order.status = Order.Status.READY_FOR_PICKUP
+        order.save()
+        
+        return Response(OrderV2Serializer(order).data)
+
     @action(detail=True, methods=['post'], url_path='pickup')
     def pickup(self, request, pk=None):
         """
         POST /api/v2/orders/{id}/pickup
-        Note: 'ready_for_pickup' status is skipped in V1 model, so we move from PREPARING to IN_TRANSIT(implied) or similar?
-        V1 Order model had: PENDING_PAYMENT, PENDING_ACCEPTANCE, PREPARING, CANCELLED.
-        It seems we are missing some statuses in the original model compared to the diagram.
-        For now, let's assume we can add statuses or map to existing ones.
-        The README diagram has: pending_payment -> pending_acceptance -> preparing -> ready_for_pickup -> in_transit -> delivered
-        The V1 model only has: PENDING_PAYMENT, PENDING_ACCEPTANCE, PREPARING, CANCELLED.
-        
-        I will ADD dynamic statuses to the Order model in a separate step or just use string literals for now 
-        if I am not allowed to change the model yet. 
-        However, the plan said "MODIFY orders/models.py". I should check the model again.
-        The simple V1 model is very limited. I should probably extend the model choices first.
         """
         order = self.get_object()
         
-        # Assuming we will update the model choices.
-        if order.status != Order.Status.PREPARING:
+        # Now we have READY_FOR_PICKUP status
+        if order.status != Order.Status.READY_FOR_PICKUP:
              return Response(
                 {"error": "Order is not ready for pickup", "current_status": order.status},
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        # 'in_transit' is not in V1 model yet, will add it.
-        order.status = 'in_transit' 
+        order.status = Order.Status.IN_TRANSIT
         order.save()
         
         return Response(OrderV2Serializer(order).data)
@@ -125,13 +154,13 @@ class OrderV2ViewSet(viewsets.ReadOnlyModelViewSet):
         """
         order = self.get_object()
         
-        if order.status != 'in_transit':
+        if order.status != Order.Status.IN_TRANSIT:
              return Response(
                 {"error": "Order is not in transit", "current_status": order.status},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        order.status = 'delivered'
+        order.status = Order.Status.DELIVERED
         order.save()
         
         return Response(OrderV2Serializer(order).data)
