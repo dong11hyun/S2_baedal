@@ -1,0 +1,25 @@
+from rest_framework import serializers
+from orders.models import Order
+
+class OrderV2Serializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order
+        fields = ['id', 'restaurant_name', 'status', 'created_at']
+        read_only_fields = ['id', 'created_at']
+
+class OrderCancellationSerializer(serializers.Serializer):
+    reason = serializers.CharField(max_length=200, required=True)
+
+class OrderPaymentSerializer(serializers.Serializer):
+    payment_method = serializers.CharField(max_length=50)
+    amount = serializers.IntegerField()
+
+# Empty serializers for actions that don't need input body, strictly for documentation purposes
+class OrderAcceptanceSerializer(serializers.Serializer):
+    pass
+
+class OrderPickupSerializer(serializers.Serializer):
+    pass
+
+class OrderDeliverySerializer(serializers.Serializer):
+    pass

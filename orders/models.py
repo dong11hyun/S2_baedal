@@ -7,6 +7,9 @@ class Order(models.Model):
         PENDING_ACCEPTANCE = 'pending_acceptance', '주문 접수 대기'
         PREPARING = 'preparing', '조리중'
         CANCELLED = 'cancelled', '주문 취소' # 고객 취소
+        REJECTED = 'rejected', '주문 거절' # 사장님 거절
+        IN_TRANSIT = 'in_transit', '배달중'
+        DELIVERED = 'delivered', '배달 완료'
 
     # 간단하게 구현하기 위해 레스토랑 정보 등은 생략하고 상태에 집중합니다.
     restaurant_name = models.CharField(max_length=100, default="맛있는 치킨집")
