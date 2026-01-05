@@ -7,5 +7,5 @@ router.register(r'orders', OrderV1ViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('api/v2/', include('orders.api.v2.urls')),
+    path('v2/', include('orders.api.v2.urls')),
 ]
