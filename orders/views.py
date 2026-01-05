@@ -1,5 +1,5 @@
-import time
-import logging
+import time #race condition 재현을 위한 3초지연 위해 사용.
+import logging # 실제 사용x
 import threading
 from rest_framework import viewsets
 from rest_framework.response import Response
