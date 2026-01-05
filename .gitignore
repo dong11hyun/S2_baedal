@@ -1,6 +1,6 @@
 # 가상환경 폴더 제외
 venv/
-env/
+.env/
 
 # 파이썬 컴파일 파일 제외
 __pycache__/
@@ -11,3 +11,4 @@ db.sqlite3
 
 # 맥 사용자가 있다면 생기는 파일 제외
 .DS_Store
+.env
