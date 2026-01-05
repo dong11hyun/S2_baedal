@@ -4,8 +4,8 @@ from orders.models import Order
 class OrderV2Serializer(serializers.ModelSerializer):
     class Meta:
         model = Order
-        fields = ['id', 'restaurant_name', 'status', 'created_at']
-        read_only_fields = ['id', 'created_at']
+        fields = ['id', 'restaurant_name', 'status', 'created_at', 'version']
+        read_only_fields = ['id', 'created_at', 'version']
 
 class OrderCancellationSerializer(serializers.Serializer):
     reason = serializers.CharField(max_length=200, required=True)
