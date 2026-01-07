@@ -24,10 +24,7 @@ class OrderV2ViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderV2Serializer
 
-    def get_etag(self, order):
-        # ETag 생성 로직: "order-{id}-v{version}"의 해시
-        raw_data = f"order-{order.id}-v{order.version}"
-        return hashlib.md5(raw_data.encode()).hexdigest()
+#=========="기본 조회 함수(CRUD) def list / def retrieve"
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
@@ -98,6 +95,13 @@ class OrderV2ViewSet(viewsets.ReadOnlyModelViewSet):
         response['ETag'] = f'"{self.get_etag(instance)}"'
         return response
 
+#=========="헬퍼 함수 def get_etag / def check_etag"========================
+
+    def get_etag(self, order):
+        # ETag 생성 로직: "order-{id}-v{version}"의 해시
+        raw_data = f"order-{order.id}-v{order.version}"
+        return hashlib.md5(raw_data.encode()).hexdigest()
+    
     def check_etag(self, request, order):
         if_match = request.headers.get('If-Match')
         if not if_match:
@@ -142,6 +146,7 @@ class OrderV2ViewSet(viewsets.ReadOnlyModelViewSet):
         
         return response
 
+#==========="행위 메서드 - 상태 변경 로직 ======================"
     @idempotent
     @action(detail=True, methods=['post'], url_path='payment')
     def payment(self, request, pk=None):
