@@ -12,6 +12,7 @@
 7. [📁 프로젝트 구조](#-프로젝트-구조)
 8. [🔹 개념 심층 분석: 상태 머신으로서의 REST API](#-개념-심층-분석-상태-머신으로서의-rest-api)
 9. [🔹 구현 현황](#-구현-현황)
+10. [🔹 향후 확장 및 개선 계획](#-향후-확장-및-개선-계획-future-plans)
 
 ##  문제 지문
 
@@ -706,3 +707,40 @@ https://api.quickeats.com/api/v2/orders
 | `POST /orders/{id}/preparation-complete/` | 레스토랑 | preparing | ready_for_pickup |
 | `POST /orders/{id}/pickup/` | 라이더 | ready_for_pickup | in_transit |
 | `POST /orders/{id}/delivery/` | 라이더 | in_transit | delivered |
+
+---
+
+## 🔹 향후 확장 및 개선 계획 (Future Plans)
+
+현재의 V2 API는 핵심 주문 로직의 정합성을 확보하는 데 집중했습니다.  
+실제 상용 수준의 대규모 트래픽을 처리하고 서비스를 확장하기 위해 다음과 같은 기술적 개선들이 계획되어 있습니다.
+
+### 1. 인증 및 인가 고도화 (Authentication & Authorization)
+- **현황**: 현재는 간단한 세션 기반 또는 개발 편의를 위한 열린 구조입니다.
+- **계획**: 
+  - **JWT (JSON Web Token)** 도입으로 Stateless한 인증 체계 구축.
+  - **RBAC (Role-Based Access Control)** 미들웨어를 도입하여 고객/점주/라이더의 권한을 API 레벨에서 엄격하게 분리.
+
+### 2. 비동기 작업 처리 (Asynchronous Processing)
+- **현황**: 주문 처리 로직이 동기(Synchronous) 방식으로 구현되어 있습니다.
+- **계획**: 
+  - **Celery + Redis**를 도입하여 '알림 발송', '배달료 정산', '통계 집계' 등 시간이 오래 걸리는 작업을 백그라운드 큐로 이관.
+  - 사용자 응답 속도 향상 및 서버 리소스 효율화.
+
+### 3. 실시간 위치 관제 (Real-time Communication)
+- **현황**: 라이더 위치나 주문 상태 변경을 확인하려면 클라이언트가 주기적으로 Polling해야 합니다.
+- **계획**: 
+  - **WebSockets (Django Channels)** 도입.
+  - 라이더의 실시간 위치를 지도에 매핑하고, 주문 상태 변경 시 푸시 알림을 전송하는 양방향 통신 구현.
+
+### 4. 마이크로서비스 아키텍처 (MSA) 전환 준비
+- **현황**: 단일 모놀리식(Monolithic) Django 앱 구조입니다.
+- **계획**: 
+  - 도메인 복잡도가 증가함에 따라 **주문(Order)**, **결제(Payment)**, **배달(Delivery)** 서비스를 독립적으로 분리.
+  - 서비스 간 통신을 위해 **Kafka** 또는 **RabbitMQ**와 같은 메시지 브로커 도입하여 결합도 감소.
+
+### 5. 모니터링 및 테스트 자동화 (Observability & CI/CD)
+- **계획**: 
+  - **Sentry** 연동으로 실시간 에러 추적.
+  - **Prometheus & Grafana**를 활용한 API 요청량 및 응답 지연시간 모니터링 시스템 구축.
+  - GitHub Actions를 통한 **CI/CD 파이프라인** 구축으로 배포 자동화.
